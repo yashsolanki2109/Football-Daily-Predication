@@ -1,0 +1,78 @@
+html {
+  /* ChatGPT UI color tokens */
+  --c-bg-default: #343541;
+  --c-bg-subtle: #40414f;
+  --c-bg-header: #202123;
+  --c-bg-input: #40414f;
+  --c-bg-message-user: #2a2b32;
+  --c-bg-message-assistant: #444654;
+  --c-bg-message-user-light: #e7e7ef;
+  --c-bg-message-assistant-light: #f7f7f8;
+  --c-border: #3e3f4b;
+  --c-border-light: #ececf1;
+  --c-primary: #10a37f;
+  --c-primary-hover: #19c37d;
+  --c-text-default: #ececf1;
+  --c-text-subtle: #8e8ea0;
+  --c-text-user: #fff;
+  --c-text-assistant: #ececf1;
+  --c-text-light: #232323;
+  --c-action: #565869;
+  --c-action-hover: #40414f;
+  --c-action-active: #202123;
+  --c-shadow: 0 2px 8px 0 #0001;
+  --c-radius-lg: 16px;
+  --c-radius-md: 8px;
+  --c-radius-sm: 4px;
+  --transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+body {
+  color: var(--c-text-default);
+  background: var(--c-bg-default);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  transition: var(--transition);
+  max-width: 100vw;
+  overflow-x: hidden;
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body.light {
+  color: var(--c-text-light);
+  background: #fff;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+textarea {
+  font-family: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #23242b;
+  border-radius: 8px;
+}
+body.light ::-webkit-scrollbar-thumb {
+  background: #e0e0e6;
+}
