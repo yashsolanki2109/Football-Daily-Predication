@@ -154,12 +154,7 @@ const Avatar = styled.div<{ $isUser: boolean }>`
 
 
 
-const Timestamp = styled.div`
-  color: #8e8ea0;
-  font-size: 12px;
-  margin-top: 6px;
-  text-align: right;
-`;
+
 
 interface MessageProps {
   message: {
@@ -175,7 +170,6 @@ interface MessageProps {
 const Message: React.FC<MessageProps> = ({ message }) => {
   const isUser = message.role === "user";
   const avatarText = isUser ? "🧑" : "🤖";
-  const [copied, setCopied] = useState(false);
  
   const [displayed, setDisplayed] = useState(isUser ? message.content : "");
 
@@ -184,12 +178,7 @@ const Message: React.FC<MessageProps> = ({ message }) => {
     setDisplayed(message.content);
   }, [message.content, isUser]);
 
-  const formatTime = (date: Date) => {
-    return new Date(date).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+
 
 
   return (
@@ -201,7 +190,7 @@ const Message: React.FC<MessageProps> = ({ message }) => {
           <div className="markdown">
             <ReactMarkdown
               components={{
-                p: ({ _, ...props }) => <span {...props} />
+                p: (props) => <span {...props} />
               }}
             >
               {displayed}
@@ -240,9 +229,7 @@ const Message: React.FC<MessageProps> = ({ message }) => {
             </>
           )}
         </Actions> */}
-        <Timestamp>
-          {copied ? "Copied!" : formatTime(message.timestamp)}
-        </Timestamp>
+   
       </BubbleWrapper>
       {isUser && <Avatar $isUser={isUser}>{avatarText}</Avatar>}
     </MessageRow>
