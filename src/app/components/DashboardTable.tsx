@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { Table, ConfigProvider, Tooltip, Spin, Alert, Button, Space, Typography, Card, Badge, Tag, Popover } from "antd";
-import type { ColumnsType, TableProps } from "antd/es/table";
+import React, { useEffect,  useState } from "react";
+import { Table, ConfigProvider,  Spin,  Button,  Typography, Card,  Tag, Popover } from "antd";
+import type { ColumnsType } from "antd/es/table";
 import styled, { createGlobalStyle } from "styled-components";
-import { ReloadOutlined, InfoCircleOutlined, TrophyOutlined, CalendarOutlined, GlobalOutlined } from '@ant-design/icons';
+import { ReloadOutlined, TrophyOutlined, CalendarOutlined, GlobalOutlined } from '@ant-design/icons';
 import "antd/dist/reset.css";
 
 const { Text, Title } = Typography;
@@ -340,23 +340,7 @@ const PopoverDetailsGrid = styled.div`
   }
 `;
 
-interface ApiResponse {
-  row_number: number;
-  "Home Team": string;
-  "Away Team": string;
-  "Fixture ID": number;
-  DateTime: string;
-  Timezone: string;
-  "Prediction Win Team": string;
-  "Prediction Loss Team": string;
-  Country: string;
-  League: string;
-  "Reason For Win": string;
-  "Reasons for Loss": string;
-  "Predicted Score": string;
-  "Prediction Accuracy": number;
-  "Overall Analytics": string;
-}
+
 
 interface DashboardRow {
   key: number;
@@ -380,7 +364,6 @@ const DashboardTable: React.FC = () => {
   const [data, setData] = useState<DashboardRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const fetchData = async () => {
     try {
@@ -416,7 +399,7 @@ const DashboardTable: React.FC = () => {
       }));
       
       setData(transformedData);
-      setLastUpdated(new Date());
+    
     } catch (err) {
       console.error('Error fetching data:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch data');
@@ -466,7 +449,7 @@ const DashboardTable: React.FC = () => {
     },
     {
       title: <><CalendarOutlined /> Date/Time</>,
-      dataIndex: 'dateTime',
+    dataIndex: 'dateTime',
       key: 'dateTime',
       width: 150,
       render: (dateTime) => (

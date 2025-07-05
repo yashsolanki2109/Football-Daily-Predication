@@ -94,7 +94,6 @@ interface ChatInterfaceProps {
   onSendMessage: (content: string) => void;
   isLoading?: boolean;
   showStorageIndicator?: boolean;
-  animateMessages?: boolean;
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({
@@ -102,7 +101,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   onSendMessage,
   isLoading = false,
   showStorageIndicator = false,
-  animateMessages = true,
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 

@@ -150,35 +150,9 @@ const Avatar = styled.div<{ $isUser: boolean }>`
   box-shadow: 0 2px 8px 0 #10a37f22;
 `;
 
-const Actions = styled.div<{ $isUser: boolean }>`
-  display: flex;
-  gap: 4px;
-  position: absolute;
-  top: 8px;
-  ${(props) => (props.$isUser ? "right: 12px;" : "left: 12px;")}
-  z-index: 2;
-`;
 
-const ActionButton = styled.button`
-  background: transparent;
-  border: none;
-  color: #8e8ea0;
-  padding: 4px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  &:hover {
-    background: #353740;
-    color: #10a37f;
-  }
-  &:active {
-    background: #23242b;
-    color: #19c37d;
-  }
-`;
+
+
 
 const Timestamp = styled.div`
   color: #8e8ea0;
@@ -195,72 +169,8 @@ interface MessageProps {
   };
 }
 
-const icons = {
-  copy: (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 18 18"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <rect
-        x="5"
-        y="5"
-        width="8"
-        height="8"
-        rx="2"
-        stroke="#8e8ea0"
-        strokeWidth="1.5"
-      />
-      <rect
-        x="3"
-        y="3"
-        width="8"
-        height="8"
-        rx="2"
-        fill="none"
-        stroke="#8e8ea0"
-        strokeWidth="1.5"
-        opacity="0.4"
-      />
-    </svg>
-  ),
-  like: (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 18 18"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M9 15.5s6-4.5 6-8.5A3.5 3.5 0 0 0 9 5.5 3.5 3.5 0 0 0 3 7c0 4 6 8.5 6 8.5Z"
-        stroke="#8e8ea0"
-        strokeWidth="1.5"
-        fill="none"
-      />
-    </svg>
-  ),
-  dislike: (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 18 18"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M9 2.5s6 4.5 6 8.5A3.5 3.5 0 0 1 9 12.5 3.5 3.5 0 0 1 3 11c0-4 6-8.5 6-8.5Z"
-        stroke="#8e8ea0"
-        strokeWidth="1.5"
-        fill="none"
-      />
-    </svg>
-  ),
-};
 
-const TYPING_SPEED = 18; // ms per character, similar to ChatGPT
+
 
 const Message: React.FC<MessageProps> = ({ message }) => {
   const isUser = message.role === "user";
@@ -281,11 +191,6 @@ const Message: React.FC<MessageProps> = ({ message }) => {
     });
   };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(message.content);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1200);
-  };
 
   return (
     <MessageRow $isUser={isUser}>
@@ -296,7 +201,7 @@ const Message: React.FC<MessageProps> = ({ message }) => {
           <div className="markdown">
             <ReactMarkdown
               components={{
-                p: ({ node, ...props }) => <span {...props} />
+                p: ({ _, ...props }) => <span {...props} />
               }}
             >
               {displayed}

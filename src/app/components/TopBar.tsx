@@ -27,19 +27,6 @@ const Left = styled.div`
   gap: 10px;
 `;
 
-const Logo = styled.div`
-  width: 32px;
-  height: 32px;
-  background: #19c37d;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  color: #fff;
-  font-weight: bold;
-  box-shadow: 0 2px 8px 0 #10a37f22;
-`;
 
 const AppName = styled.span`
   font-size: 18px;
@@ -138,28 +125,7 @@ const Avatar = styled.div`
   }
 `;
 
-const ThemeToggle = styled.button`
-  background: transparent;
-  border: none;
-  color: #ececf1;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-  &:hover {
-    background: #444654;
-    color: #10a37f;
-  }
-  &:active {
-    background: #23242b;
-    color: #19c37d;
-  }
-`;
+
 
 interface TopBarProps {
   active: "dashboard" | "chat";
@@ -167,35 +133,11 @@ interface TopBarProps {
   onClearChat?: () => void;
 }
 
-const SunIcon = (
-  <svg
-    width="22"
-    height="22"
-    viewBox="0 0 22 22"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <circle cx="11" cy="11" r="5" stroke="#ececf1" strokeWidth="1.5" />
-    <path
-      d="M11 1v2M11 19v2M4.22 4.22l1.42 1.42M16.36 16.36l1.42 1.42M1 11h2M19 11h2M4.22 17.78l1.42-1.42M16.36 5.64l1.42-1.42"
-      stroke="#ececf1"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    />
-  </svg>
-);
+
 
 
 const TopBar: React.FC<TopBarProps> = ({ active, onSelect, onClearChat }) => {
-  const [isLight, setIsLight] = useState(false);
-
-  useEffect(() => {
-    if (isLight) {
-      document.body.classList.add("light");
-    } else {
-      document.body.classList.remove("light");
-    }
-  }, [isLight]);
+ 
 
   return (
     <Bar>
