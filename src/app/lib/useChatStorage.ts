@@ -5,6 +5,7 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  pending?: boolean;
 }
 
 interface Conversation {
@@ -41,15 +42,32 @@ export const useChatStorage = () => {
     }
   }, [messages]);
 
-  const addMessage = useCallback((role: "user" | "assistant", content: string) => {
+  const addMessage = useCallback((role: "user" | "assistant", content: string, pending = false) => {
     setMessages((prev) => [
       ...prev,
       {
         role,
         content,
         timestamp: new Date(),
+        pending,
       },
     ]);
+  }, []);
+
+  const updateLastAssistantMessage = useCallback((content: string) => {
+    setMessages((prev) => {
+      const updated = [...prev];
+      // Find the last assistant message
+      const lastAssistantIdx = updated.map((m, i) => m.role === "assistant" ? i : -1).filter(i => i !== -1).pop();
+      if (lastAssistantIdx !== undefined && lastAssistantIdx !== -1) {
+        updated[lastAssistantIdx] = {
+          ...updated[lastAssistantIdx],
+          content,
+          pending: false,
+        };
+      }
+      return updated;
+    });
   }, []);
 
   const clearMessages = useCallback(() => {
@@ -69,6 +87,7 @@ export const useChatStorage = () => {
     isLoading,
     setIsLoading,
     addMessage,
+    updateLastAssistantMessage,
     clearMessages,
     showStorageIndicator,
   };

@@ -25,28 +25,41 @@ const MainContent = styled.main`
   min-height: 0;
 `;
 
+
 export default function Home() {
   const [activeMenu, setActiveMenu] = React.useState<"dashboard" | "chat">("dashboard");
-  const { conversation, isLoading, setIsLoading, addMessage, clearMessages, showStorageIndicator } = useChatStorage();
+  const {
+    conversation,
+    isLoading,
+    setIsLoading,
+    addMessage,
+    updateLastAssistantMessage,
+    clearMessages,
+    showStorageIndicator
+  } = useChatStorage();
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim()) return;
 
-    // Add user message immediately
     addMessage("user", content);
+    addMessage("assistant", "", true);
     setIsLoading(true);
 
     try {
-      // Send message to API
       const response = await sendChatMessage(content);
-      
-      // Add AI response
-      addMessage("assistant", response.answer);
+      const answer = response.answer;
+
+      for (let i = 1; i <= answer.length; i++) {
+        setTimeout(() => {
+          updateLastAssistantMessage(answer.slice(0, i));
+        }, i * 20);
+      }
+      setTimeout(() => {
+        setIsLoading(false);
+      }, answer.length * 20 + 100);
     } catch (error) {
-      console.error('Error getting AI response:', error);
-      // Add error message
-      addMessage("assistant", "Sorry, I encountered an error while processing your request. Please try again.");
-    } finally {
+      console.log("You got the error", error)
+      updateLastAssistantMessage("Sorry, I encountered an error while processing your request. Please try again.");
       setIsLoading(false);
     }
   };

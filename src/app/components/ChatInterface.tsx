@@ -135,9 +135,17 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   Messages loaded from recent chat history
                 </div>
               )}
-              {conversation.messages.map((message, index) => (
-                <Message key={index} message={message}/>
-              ))}
+              {conversation.messages.map((message, index) => {
+                // Find the last assistant message index
+                const lastAssistantIndex = conversation.messages
+                  .map((msg, i) => (msg.role === "assistant" ? i : -1))
+                  .filter(i => i !== -1)
+                  .pop();
+                const isTyping = isLoading && index === lastAssistantIndex;
+                return (
+                  <Message key={index} message={message} isTyping={isTyping} />
+                );
+              })}
               <div ref={messagesEndRef} />
             </MessageColumn>
           </MessagesArea>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 import ReactMarkdown from "react-markdown";
 
@@ -150,42 +150,68 @@ const Avatar = styled.div<{ $isUser: boolean }>`
   box-shadow: 0 2px 8px 0 #10a37f22;
 `;
 
+const BlinkingCursor = styled.span`
+  display: inline-block;
+  width: 1ch;
+  animation: blink 1s steps(1) infinite;
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+`;
 
-
-
-
-
+const TypingDots = () => (
+  <span style={{ letterSpacing: '2px' }}>
+    <span className="dot">.</span>
+    <span className="dot">.</span>
+    <span className="dot">.</span>
+    <style jsx>{`
+      .dot {
+        animation: blink 1.4s infinite both;
+      }
+      .dot:nth-child(2) { animation-delay: 0.2s; }
+      .dot:nth-child(3) { animation-delay: 0.4s; }
+      @keyframes blink {
+        0%, 80%, 100% { opacity: 0; }
+        40% { opacity: 1; }
+      }
+    `}</style>
+  </span>
+);
 
 interface MessageProps {
   message: {
     role: "user" | "assistant";
     content: string;
     timestamp: Date;
+    pending?: boolean;
   };
+  isTyping?: boolean;
 }
 
-
-
-
-const Message: React.FC<MessageProps> = ({ message }) => {
+const Message: React.FC<MessageProps> = ({ message, isTyping }) => {
   const isUser = message.role === "user";
   const avatarText = isUser ? "🧑" : "🤖";
- 
-  const [displayed, setDisplayed] = useState(isUser ? message.content : "");
 
-  useEffect(() => {
-    
-    setDisplayed(message.content);
-  }, [message.content, isUser]);
-
-
-
+  if (message.pending) {
+    return (
+      <MessageRow $isUser={false}>
+        <Avatar $isUser={false}>{avatarText}</Avatar>
+        <BubbleWrapper>
+          <Bubble $isUser={false}>
+            <div className="markdown">
+              <span><TypingDots /></span>
+            </div>
+          </Bubble>
+        </BubbleWrapper>
+      </MessageRow>
+    );
+  }
 
   return (
     <MessageRow $isUser={isUser}>
       {!isUser && <Avatar $isUser={isUser}>{avatarText}</Avatar>}
       <BubbleWrapper>
-        
         <Bubble $isUser={isUser}>
           <div className="markdown">
             <ReactMarkdown
@@ -193,43 +219,11 @@ const Message: React.FC<MessageProps> = ({ message }) => {
                 p: (props) => <span {...props} />
               }}
             >
-              {displayed}
+              {message.content}
             </ReactMarkdown>
-            {!isUser && displayed.length < message.content.length && (
-              <span className="blinking-cursor">|</span>
-            )}
+            {isTyping && <BlinkingCursor>|</BlinkingCursor>}
           </div>
         </Bubble>
-        {/* <Actions $isUser={isUser}>
-          <ActionButton onClick={handleCopy} title="Copy">
-            {icons.copy}
-          </ActionButton>
-          {!isUser && (
-            <>
-              <ActionButton
-                onClick={() => {
-                  setLiked((v) => !v);
-                  setDisliked(false);
-                }}
-                title="Like"
-                style={liked ? { color: "#10a37f" } : {}}
-              >
-                {icons.like}
-              </ActionButton>
-              <ActionButton
-                onClick={() => {
-                  setDisliked((v) => !v);
-                  setLiked(false);
-                }}
-                title="Dislike"
-                style={disliked ? { color: "#f33" } : {}}
-              >
-                {icons.dislike}
-              </ActionButton>
-            </>
-          )}
-        </Actions> */}
-   
       </BubbleWrapper>
       {isUser && <Avatar $isUser={isUser}>{avatarText}</Avatar>}
     </MessageRow>
