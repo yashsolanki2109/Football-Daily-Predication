@@ -128,23 +128,24 @@ const Avatar = styled.div`
 
 
 interface TopBarProps {
-  active: "dashboard" | "chat";
-  onSelect: (menu: "dashboard" | "chat") => void;
+  active: "dashboard" | "chat" | "weekly_dashboard" | "weekly_chat";
+  onSelect: (menu: "dashboard" | "chat" | "weekly_dashboard" | "weekly_chat") => void;
   onClearChat?: () => void;
+  onClearWeeklyChat?: () => void;
 }
 
 
 
 
-const TopBar: React.FC<TopBarProps> = ({ active, onSelect, onClearChat }) => {
- 
+const TopBar: React.FC<TopBarProps> = ({ active, onSelect, onClearChat, onClearWeeklyChat }) => {
+
 
   return (
     <Bar>
       <Left>
 
-        <AppName>{active === 'dashboard' ? 'Daily Predictions' : 'Chat'}</AppName>
-        
+        <AppName>{active === 'dashboard' ? 'Daily Predictions' : active === 'weekly_dashboard' ? 'Weekly Predictions' : active === 'weekly_chat' ? 'Weekly Chat' : 'Chat'}</AppName>
+
       </Left>
       <Center>
         <Menu>
@@ -160,11 +161,28 @@ const TopBar: React.FC<TopBarProps> = ({ active, onSelect, onClearChat }) => {
           >
             Chat
           </MenuItem>
+          <MenuItem
+            $active={active === "weekly_dashboard"}
+            onClick={() => onSelect("weekly_dashboard")}
+          >
+            Weekly Dashboard
+          </MenuItem>
+          <MenuItem
+            $active={active === "weekly_chat"}
+            onClick={() => onSelect("weekly_chat")}
+          >
+            Weekly Chat
+          </MenuItem>
         </Menu>
       </Center>
       <Right>
         {active === "chat" && onClearChat && (
           <ClearButton onClick={onClearChat} title="Clear chat history">
+            Clear
+          </ClearButton>
+        )}
+        {active === "weekly_chat" && onClearWeeklyChat && (
+          <ClearButton onClick={onClearWeeklyChat} title="Clear weekly chat history">
             Clear
           </ClearButton>
         )}
