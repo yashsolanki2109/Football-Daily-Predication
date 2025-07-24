@@ -10,6 +10,11 @@ import {
   Card,
   Tag,
   Popover,
+  DatePicker,
+  Input,
+  Select,
+  Row,
+  Col,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import styled, { createGlobalStyle } from "styled-components";
@@ -20,8 +25,11 @@ import {
   GlobalOutlined,
 } from "@ant-design/icons";
 import "antd/dist/reset.css";
+import dayjs from "dayjs";
 
 const { Text, Title } = Typography;
+const { Search } = Input;
+const { Option } = Select;
 
 const GlobalScrollbarStyle = createGlobalStyle`
   /* Modern Scrollbar Styling */
@@ -141,9 +149,9 @@ const GlobalScrollbarStyle = createGlobalStyle`
 `;
 
 const DashboardContainer = styled.div`
-  min-height: 100vh;
-
+  /* min-height: 100vh; */
   overflow-x: hidden;
+  overflow-y: auto;
   background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
   padding: 20px;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
@@ -355,6 +363,30 @@ const PopoverDetailsGrid = styled.div`
   }
 `;
 
+// Responsive filter row
+const FiltersRow = styled(Row)`
+  margin-bottom: 20px;
+  @media (max-width: 768px) {
+    flex-direction: column !important;
+    gap: 10px;
+  }
+`;
+
+const whiteInputStyle = {
+  color: '#fff',
+};
+
+const WhitePlaceholderStyle = createGlobalStyle`
+  .white-placeholder input::placeholder,
+  .white-placeholder .ant-select-selection-placeholder {
+    color: #fff !important;
+    opacity: 1 !important;
+  }
+  .white-placeholder .ant-select-selection-item {
+    color: #fff !important;
+  }
+`;
+
 interface DashboardRow {
   key: number;
   homeTeam: string;
@@ -377,6 +409,9 @@ const DashboardTable: React.FC = () => {
   const [data, setData] = useState<DashboardRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filterDate, setFilterDate] = useState<string | null>(null);
+  const [filterName, setFilterName] = useState<string>("");
+  const [filterLeague, setFilterLeague] = useState<string>("all");
 
   const fetchData = async () => {
     try {
@@ -610,6 +645,34 @@ const DashboardTable: React.FC = () => {
     uniqueLeagues: new Set(data.map((item) => item.league)).size,
   };
 
+  // Unique leagues for dropdown
+  const leagueOptions = Array.from(new Set(data.map((item) => item.league)));
+
+  // Filtered data
+  const filteredData = data.filter((item) => {
+    let match = true;
+    // Date filter (exact date)
+    if (filterDate) {
+      const itemDate = dayjs(item.dateTime).format("YYYY-MM-DD");
+      if (itemDate !== filterDate) match = false;
+    }
+    // Name filter (home or away team)
+    if (filterName) {
+      const name = filterName.toLowerCase();
+      if (
+        !item.homeTeam.toLowerCase().includes(name) &&
+        !item.awayTeam.toLowerCase().includes(name)
+      ) {
+        match = false;
+      }
+    }
+    // League filter
+    if (filterLeague !== "all" && item.league !== filterLeague) {
+      match = false;
+    }
+    return match;
+  });
+
   if (loading) {
     return (
       <ConfigProvider
@@ -701,6 +764,7 @@ const DashboardTable: React.FC = () => {
       }}
     >
       <GlobalScrollbarStyle />
+      <WhitePlaceholderStyle />
       <DashboardContainer>
         {data.length > 0 && (
           <StatsContainer>
@@ -730,9 +794,54 @@ const DashboardTable: React.FC = () => {
             </StatCard>
           </StatsContainer>
         )}
-
+        {/* Filters Row */}
+        <FiltersRow gutter={[12, 12]} justify="start">
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <DatePicker
+              style={{ ...whiteInputStyle, width: '100%' }}
+              allowClear
+              placeholder="Filter by Date"
+              onChange={(date) =>
+                setFilterDate(date ? date.format("YYYY-MM-DD") : null)
+              }
+              inputReadOnly={false}
+              
+              popupStyle={{ color: '#fff' }}
+              // AntD doesn't support placeholder style directly, so use className
+              className="white-placeholder"
+            />
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Search
+              allowClear
+              placeholder="Search by Team Name"
+              onChange={(e) => setFilterName(e.target.value)}
+              value={filterName}
+              style={{ ...whiteInputStyle, width: '100%' }}
+              className="white-placeholder"
+            />
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Select
+              allowClear
+              style={{ ...whiteInputStyle, width: '100%' }}
+              placeholder="Filter by League"
+              value={filterLeague === "all" ? undefined : filterLeague}
+              onChange={(val) => setFilterLeague(val || "all")}
+              dropdownStyle={{ background: '#2a2a2a', color: '#fff' }}
+              className="white-placeholder"
+            >
+              <Option value="all">All Leagues</Option>
+              {leagueOptions.map((league) => (
+                <Option key={league} value={league}>
+                  {league}
+                </Option>
+              ))}
+            </Select>
+          </Col>
+        </FiltersRow>
         <TableWrapper>
-          {data.length === 0 ? (
+          {filteredData.length === 0 ? (
             <EmptyContainer>
               <span style={{ fontSize: 48, marginBottom: 16 }}>📊</span>
               <Title level={3} style={{ color: "#ececf1", marginBottom: 8 }}>
@@ -750,7 +859,7 @@ const DashboardTable: React.FC = () => {
           ) : (
             <Table
               columns={columns}
-              dataSource={data}
+              dataSource={filteredData}
               pagination={{
                 pageSize: 10,
                 showSizeChanger: false,
