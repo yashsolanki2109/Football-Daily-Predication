@@ -8,7 +8,7 @@ export const sendChatMessage = async (
 ): Promise<ChatResponse> => {
   try {
     const response = await fetch(
-      "https://tekzest.app.n8n.cloud/webhook/chatbot",
+      "https://n8n.srv924553.hstgr.cloud/webhook/chatbot",
       {
         method: "POST",
         headers: {
