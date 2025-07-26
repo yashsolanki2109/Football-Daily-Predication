@@ -419,7 +419,7 @@ const DashboardTable: React.FC = () => {
       setError(null);
 
       const response = await fetch(
-        "https://n8n.srv924553.hstgr.cloud/webhook/get-table-data"
+        "https://n8n.srv926513.hstgr.cloud/webhook/get-table-data"
       );
 
       if (!response.ok) {
