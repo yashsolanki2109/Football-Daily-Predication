@@ -547,7 +547,7 @@ const DashboardTable: React.FC = () => {
       render: (_, record) => (
         <div style={{ textAlign: "center" }}>
           <div style={{ fontWeight: 600, color: "#52c41a" }}>
-            Win: {record.predictionWinTeam}
+            Win: {record.predictionWinTeam.split(" ")[0]}
           </div>
           <div style={{ fontSize: "12px", color: "#8e8ea0" }}>
             Loss: {record.predictionLossTeam}
