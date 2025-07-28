@@ -467,9 +467,11 @@ const DashboardTable: React.FC = () => {
     return "low";
   };
 
-  const formatDateTime = (dateTime: string) => {
+  const formatDateTime = (dateTime: string | null | undefined) => {
+    if (!dateTime) return '-';
     try {
       const date = new Date(dateTime);
+      if (isNaN(date.getTime())) return '-';
       return date.toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
@@ -478,7 +480,7 @@ const DashboardTable: React.FC = () => {
         minute: "2-digit",
       });
     } catch {
-      return dateTime;
+      return '-';
     }
   };
 
@@ -494,11 +496,11 @@ const DashboardTable: React.FC = () => {
       render: (_, record) => (
         <div style={{ textAlign: "left" }}>
           <div>
-            <TeamName>{record.homeTeam}</TeamName>
+            <TeamName>{record.homeTeam ?? '-'}</TeamName>
           </div>
           <div style={{ fontSize: "12px", color: "#8e8ea0" }}>vs</div>
           <div>
-            <TeamName>{record.awayTeam}</TeamName>
+            <TeamName>{record.awayTeam ?? '-'}</TeamName>
           </div>
         </div>
       ),
@@ -531,10 +533,10 @@ const DashboardTable: React.FC = () => {
       render: (_, record) => (
         <div>
           <div style={{ fontWeight: 600, fontSize: "12px" }}>
-            {record.league}
+            {record.league ?? '-'}
           </div>
           <div style={{ fontSize: "11px", color: "#8e8ea0" }}>
-            {record.country}
+            {record.country ?? '-'}
           </div>
         </div>
       ),
@@ -547,10 +549,10 @@ const DashboardTable: React.FC = () => {
       render: (_, record) => (
         <div style={{ textAlign: "center" }}>
           <div style={{ fontWeight: 600, color: "#52c41a" }}>
-            Win: {record.predictionWinTeam}
+            Win: {record.predictionWinTeam ?? '-'}
           </div>
           <div style={{ fontSize: "12px", color: "#8e8ea0" }}>
-            Loss: {record.predictionLossTeam}
+            Loss: {record.predictionLossTeam ?? '-'}
           </div>
         </div>
       ),
@@ -561,7 +563,7 @@ const DashboardTable: React.FC = () => {
       dataIndex: "predictedScore",
       key: "predictedScore",
       width: 100,
-      render: (score) => <ScoreDisplay>{score}</ScoreDisplay>,
+      render: (score) => <ScoreDisplay>{score ?? '-'}</ScoreDisplay>,
       responsive: ["sm"],
     },
     {
@@ -569,11 +571,14 @@ const DashboardTable: React.FC = () => {
       dataIndex: "predictionAccuracy",
       key: "predictionAccuracy",
       width: 100,
-      render: (accuracy) => (
-        <AccuracyTag className={getAccuracyClass(accuracy)}>
-          {accuracy}%
-        </AccuracyTag>
-      ),
+      render: (accuracy) =>
+        accuracy == null ? (
+          <AccuracyTag>-</AccuracyTag>
+        ) : (
+          <AccuracyTag className={getAccuracyClass(accuracy)}>
+            {accuracy}%
+          </AccuracyTag>
+        ),
     },
     {
       title: "Details",
@@ -592,7 +597,7 @@ const DashboardTable: React.FC = () => {
                     fontSize: 13,
                   }}
                 >
-                  {record.reasonForWin}
+                  {record.reasonForWin ?? '-'}
                 </div>
               </div>
               <div>
@@ -604,7 +609,7 @@ const DashboardTable: React.FC = () => {
                     fontSize: 13,
                   }}
                 >
-                  {record.reasonsForLoss}
+                  {record.reasonsForLoss ?? '-'}
                 </div>
               </div>
               <div>
@@ -616,7 +621,7 @@ const DashboardTable: React.FC = () => {
                     fontSize: 13,
                   }}
                 >
-                  {record.overallAnalytics}
+                  {record.overallAnalytics ?? '-'}
                 </div>
               </div>
             </PopoverDetailsGrid>
