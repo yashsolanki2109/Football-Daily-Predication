@@ -461,6 +461,13 @@ const DashboardTable: React.FC = () => {
     fetchData();
   }, []);
 
+  // Sort data by dateTime descending (latest first)
+  const sortedData = [...data].sort((a, b) => {
+    const dateA = a.dateTime ? new Date(a.dateTime).getTime() : 0;
+    const dateB = b.dateTime ? new Date(b.dateTime).getTime() : 0;
+    return dateB - dateA;
+  });
+
   const getAccuracyClass = (accuracy: number) => {
     if (accuracy >= 80) return "high";
     if (accuracy >= 60) return "medium";
@@ -651,10 +658,10 @@ const DashboardTable: React.FC = () => {
   };
 
   // Unique leagues for dropdown
-  const leagueOptions = Array.from(new Set(data.map((item) => item.league)));
+  const leagueOptions = Array.from(new Set(sortedData.map((item) => item.league)));
 
   // Filtered data
-  const filteredData = data.filter((item) => {
+  const filteredData = sortedData.filter((item) => {
     let match = true;
     // Date filter (exact date)
     if (filterDate) {
@@ -677,6 +684,7 @@ const DashboardTable: React.FC = () => {
     }
     return match;
   });
+  console.log('FilteredData order:', filteredData.map(i => i.dateTime));
 
   if (loading) {
     return (
