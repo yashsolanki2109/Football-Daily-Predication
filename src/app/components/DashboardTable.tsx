@@ -547,7 +547,7 @@ const DashboardTable: React.FC = () => {
       render: (_, record) => (
         <div style={{ textAlign: "center" }}>
           <div style={{ fontWeight: 600, color: "#52c41a" }}>
-            Win: {record.predictionWinTeam.split(" ")[0]}
+            Win: {record.predictionWinTeam}
           </div>
           <div style={{ fontSize: "12px", color: "#8e8ea0" }}>
             Loss: {record.predictionLossTeam}
@@ -636,9 +636,9 @@ const DashboardTable: React.FC = () => {
     averageAccuracy:
       data.length > 0
         ? Math.round(
-            data.reduce((sum, item) => sum + item.predictionAccuracy, 0) /
-              data.length
-          )
+          data.reduce((sum, item) => sum + item.predictionAccuracy, 0) /
+          data.length
+        )
         : 0,
     highAccuracyMatches: data.filter((item) => item.predictionAccuracy >= 80)
       .length,
@@ -805,7 +805,7 @@ const DashboardTable: React.FC = () => {
                 setFilterDate(date ? date.format("YYYY-MM-DD") : null)
               }
               inputReadOnly={false}
-              
+
               popupStyle={{ color: '#fff' }}
               // AntD doesn't support placeholder style directly, so use className
               className="white-placeholder"
