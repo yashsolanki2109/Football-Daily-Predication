@@ -1036,7 +1036,7 @@ const DashboardTable: React.FC = () => {
                 showSizeChanger: false,
                 showQuickJumper: false,
               }}
-              scroll={{ x: "max-content", y: "calc(100vh - 400px)" }}
+              scroll={{ x: "max-content", y: "calc(100vh - 150px)" }}
               size="middle"
               style={{ background: "transparent" }}
               rowKey="key"
