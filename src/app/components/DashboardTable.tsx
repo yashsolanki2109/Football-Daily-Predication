@@ -333,6 +333,28 @@ const AccuracyTag = styled(Tag)`
   }
 `;
 
+const ConfidenceTag = styled(Tag)`
+  border-radius: 6px;
+  font-weight: 600;
+  border: none;
+  padding: 4px 8px;
+
+  &.high {
+    background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+    color: white;
+  }
+
+  &.medium {
+    background: linear-gradient(135deg, #faad14 0%, #d48806 100%);
+    color: white;
+  }
+
+  &.low {
+    background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
+    color: white;
+  }
+`;
+
 const TeamName = styled.span`
   font-weight: 600;
   color: #10a37f;
@@ -403,6 +425,8 @@ interface DashboardRow {
   predictedScore: string;
   predictionAccuracy: number;
   overallAnalytics: string;
+  confidenceLevel: number;
+  partialData: string;
 }
 
 const DashboardTable: React.FC = () => {
@@ -412,6 +436,9 @@ const DashboardTable: React.FC = () => {
   const [filterDate, setFilterDate] = useState<string | null>(null);
   const [filterName, setFilterName] = useState<string>("");
   const [filterLeague, setFilterLeague] = useState<string>("all");
+  const [filterConfidence, setFilterConfidence] = useState<string>("all");
+  const [filterPartialData, setFilterPartialData] = useState<string>("");
+  const [filterAccuracy, setFilterAccuracy] = useState<string>("all");
 
   const fetchData = async () => {
     try {
@@ -446,6 +473,8 @@ const DashboardTable: React.FC = () => {
         predictedScore: item["predicted_score"],
         predictionAccuracy: item["prediction_accuracy"],
         overallAnalytics: item["overall_analytics"],
+        confidenceLevel: item["confidence_level"] || 0,
+        partialData: item["partial_data"] || '',
       }));
 
       setData(transformedData);
@@ -473,6 +502,8 @@ const DashboardTable: React.FC = () => {
     if (accuracy >= 60) return "medium";
     return "low";
   };
+
+
 
   const formatDateTime = (dateTime: string | null | undefined) => {
     if (!dateTime) return '-';
@@ -588,6 +619,49 @@ const DashboardTable: React.FC = () => {
         ),
     },
     {
+      title: "Confidence",
+      dataIndex: "confidenceLevel",
+      key: "confidenceLevel",
+      width: 100,
+      render: (confidence) => {
+        if (confidence == null) {
+          return <ConfidenceTag>-</ConfidenceTag>;
+        }
+        
+        let backgroundColor = '#ff4d4f'; // default red for low
+        if (String(confidence).toLowerCase() == 'high') {
+          backgroundColor = '#52c41a'; // green for high
+        } else if (String(confidence).toLowerCase() ==  'medium') {
+          backgroundColor = '#faad14'; // yellow for medium
+        }
+        return (
+          <ConfidenceTag 
+            style={{ 
+              background: backgroundColor,
+              color: 'white',
+              borderRadius: '6px',
+              fontWeight: 600,
+              border: 'none',
+              padding: '4px 8px'
+            }}
+          >
+            {confidence}
+          </ConfidenceTag>
+        );
+      },
+    },
+    {
+      title: "Partial Data",
+      dataIndex: "partialData",
+      key: "partialData",
+      width: 120,
+      render: (partialData) => (
+        <div style={{ fontSize: "12px", wordBreak: "break-word" }}>
+          {partialData || '-'}
+        </div>
+      ),
+    },
+    {
       title: "Details",
       key: "details",
       width: 120,
@@ -631,6 +705,18 @@ const DashboardTable: React.FC = () => {
                   {record.overallAnalytics ?? '-'}
                 </div>
               </div>
+              {/* <div>
+                <strong>Partial Data</strong>
+                <div
+                  style={{
+                    whiteSpace: "pre-line",
+                    wordBreak: "break-word",
+                    fontSize: 13,
+                  }}
+                >
+                  {record.partialData ?? '-'}
+                </div>
+              </div> */}
             </PopoverDetailsGrid>
           }
           title="Match Details"
@@ -681,6 +767,31 @@ const DashboardTable: React.FC = () => {
     // League filter
     if (filterLeague !== "all" && item.league !== filterLeague) {
       match = false;
+    }
+    // Accuracy filter
+    if (filterAccuracy !== "all") {
+      let accuracyLevel = "low";
+      if (item.predictionAccuracy >= 80) {
+        accuracyLevel = "high";
+      } else if (item.predictionAccuracy >= 60) {
+        accuracyLevel = "medium";
+      }
+      if (accuracyLevel !== filterAccuracy) {
+        match = false;
+      }
+    }
+    // Confidence filter
+    if (filterConfidence !== "all") {
+      const confidenceStr = String(item.confidenceLevel).toLowerCase();
+      if (confidenceStr !== filterConfidence.toLowerCase()) {
+        match = false;
+      }
+    }
+    // Partial Data filter
+    if (filterPartialData) {
+      if (item.partialData !== filterPartialData) {
+        match = false;
+      }
     }
     return match;
   });
@@ -850,6 +961,53 @@ const DashboardTable: React.FC = () => {
                   {league}
                 </Option>
               ))}
+            </Select>
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Select
+              allowClear
+              style={{ ...whiteInputStyle, width: '100%' }}
+              placeholder="Filter by Accuracy"
+              value={filterAccuracy === "all" ? undefined : filterAccuracy}
+              onChange={(val) => setFilterAccuracy(val || "all")}
+              dropdownStyle={{ background: '#2a2a2a', color: '#fff' }}
+              className="white-placeholder"
+            >
+              <Option value="all">All Accuracy Levels</Option>
+              <Option value="high">High (≥80%)</Option>
+              <Option value="medium">Medium (≥60%)</Option>
+              <Option value="low">Low (&lt;60%)</Option>
+            </Select>
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Select
+              allowClear
+              style={{ ...whiteInputStyle, width: '100%' }}
+              placeholder="Filter by Confidence"
+              value={filterConfidence === "all" ? undefined : filterConfidence}
+              onChange={(val) => setFilterConfidence(val || "all")}
+              dropdownStyle={{ background: '#2a2a2a', color: '#fff' }}
+              className="white-placeholder"
+            >
+              <Option value="all">All Confidence Levels</Option>
+              <Option value="high">High</Option>
+              <Option value="medium">Medium</Option>
+              <Option value="low">Low</Option>
+            </Select>
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Select
+              allowClear
+              style={{ ...whiteInputStyle, width: '100%' }}
+              placeholder="Filter by Partial Data"
+              value={filterPartialData === "" ? undefined : filterPartialData}
+              onChange={(val) => setFilterPartialData(val || "")}
+              dropdownStyle={{ background: '#2a2a2a', color: '#fff' }}
+              className="white-placeholder"
+            >
+              <Option value="">All Partial Data</Option>
+              <Option value="Yes">Yes</Option>
+              <Option value="No">No</Option>
             </Select>
           </Col>
         </FiltersRow>
