@@ -27,7 +27,6 @@ const Left = styled.div`
   gap: 10px;
 `;
 
-
 const AppName = styled.span`
   font-size: 18px;
   font-weight: 700;
@@ -125,27 +124,33 @@ const Avatar = styled.div`
   }
 `;
 
-
-
 interface TopBarProps {
   active: "dashboard" | "chat" | "weekly_dashboard" | "weekly_chat";
-  onSelect: (menu: "dashboard" | "chat" | "weekly_dashboard" | "weekly_chat") => void;
+  onSelect: (
+    menu: "dashboard" | "chat" | "weekly_dashboard" | "weekly_chat"
+  ) => void;
   onClearChat?: () => void;
   onClearWeeklyChat?: () => void;
 }
 
-
-
-
-const TopBar: React.FC<TopBarProps> = ({ active, onSelect, onClearChat, onClearWeeklyChat }) => {
-
-
+const TopBar: React.FC<TopBarProps> = ({
+  active,
+  onSelect,
+  onClearChat,
+  onClearWeeklyChat,
+}) => {
   return (
     <Bar>
       <Left>
-
-        <AppName>{active === 'dashboard' ? 'Daily Predictions' : active === 'weekly_dashboard' ? 'Weekly Predictions' : active === 'weekly_chat' ? 'Weekly Chat' : 'Chat'}</AppName>
-
+        <AppName>
+          {active === "dashboard"
+            ? "Daily Predictions"
+            : active === "weekly_dashboard"
+            ? "Pre-Day Predictions"
+            : active === "weekly_chat"
+            ? "Pre-Day Chat"
+            : "Chat"}
+        </AppName>
       </Left>
       <Center>
         <Menu>
@@ -165,13 +170,13 @@ const TopBar: React.FC<TopBarProps> = ({ active, onSelect, onClearChat, onClearW
             $active={active === "weekly_dashboard"}
             onClick={() => onSelect("weekly_dashboard")}
           >
-            Weekly Dashboard
+            Pre-Day Dashboard
           </MenuItem>
           <MenuItem
             $active={active === "weekly_chat"}
             onClick={() => onSelect("weekly_chat")}
           >
-            Weekly Chat
+            Pre-Day Chat
           </MenuItem>
         </Menu>
       </Center>
@@ -182,7 +187,10 @@ const TopBar: React.FC<TopBarProps> = ({ active, onSelect, onClearChat, onClearW
           </ClearButton>
         )}
         {active === "weekly_chat" && onClearWeeklyChat && (
-          <ClearButton onClick={onClearWeeklyChat} title="Clear weekly chat history">
+          <ClearButton
+            onClick={onClearWeeklyChat}
+            title="Clear Pre-Day chat history"
+          >
             Clear
           </ClearButton>
         )}

@@ -35,7 +35,7 @@ export const useWeeklyChatStorage = () => {
     if (messages.length > 0) {
       const conversation: Conversation = {
         id: "weekly-1",
-        title: "Weekly Chat",
+        title: "Pre-Day Chat",
         messages,
       };
       saveWeeklyChatToStorage(conversation);
@@ -77,7 +77,7 @@ export const useWeeklyChatStorage = () => {
 
   const conversation: Conversation = {
     id: "weekly-1",
-    title: "Weekly Chat",
+    title: "Pre-Day Chat",
     messages,
   };
 

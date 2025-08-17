@@ -35,7 +35,7 @@ export const sendWeeklyChatMessage = async (
 ): Promise<ChatResponse> => {
   try {
     const response = await fetch(
-      "https://tekzest.app.n8n.cloud/webhook/chatbot-week",
+      "https://n8n.srv926513.hstgr.cloud/webhook/early-chatbot",
       {
         method: "POST",
         headers: {
@@ -52,7 +52,7 @@ export const sendWeeklyChatMessage = async (
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error sending weekly chat message:", error);
+    console.error("Error sending Pre-Day chat message:", error);
     throw error;
   }
 };

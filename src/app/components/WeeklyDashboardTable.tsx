@@ -371,7 +371,7 @@ const FiltersRow = styled(Row)`
 `;
 
 const whiteInputStyle = {
-  color: '#fff',
+  color: "#fff",
 };
 
 const WhitePlaceholderStyle = createGlobalStyle`
@@ -417,7 +417,7 @@ const WeeklyDashboardTable: React.FC = () => {
       setError(null);
 
       const response = await fetch(
-        "https://tekzest.app.n8n.cloud/webhook/get-table-data-for-week"
+        "https://n8n.srv926513.hstgr.cloud/webhook/get-early-table-data"
       );
 
       if (!response.ok) {
@@ -796,14 +796,14 @@ const WeeklyDashboardTable: React.FC = () => {
         <FiltersRow gutter={[12, 12]} justify="start">
           <Col xs={24} sm={12} md={8} lg={6}>
             <DatePicker
-              style={{ ...whiteInputStyle, width: '100%' }}
+              style={{ ...whiteInputStyle, width: "100%" }}
               allowClear
               placeholder="Filter by Date"
               onChange={(date) =>
                 setFilterDate(date ? date.format("YYYY-MM-DD") : null)
               }
               inputReadOnly={false}
-              popupStyle={{ color: '#fff' }}
+              popupStyle={{ color: "#fff" }}
               className="white-placeholder"
             />
           </Col>
@@ -813,18 +813,18 @@ const WeeklyDashboardTable: React.FC = () => {
               placeholder="Search by Team Name"
               onChange={(e) => setFilterName(e.target.value)}
               value={filterName}
-              style={{ ...whiteInputStyle, width: '100%' }}
+              style={{ ...whiteInputStyle, width: "100%" }}
               className="white-placeholder"
             />
           </Col>
           <Col xs={24} sm={12} md={8} lg={6}>
             <Select
               allowClear
-              style={{ ...whiteInputStyle, width: '100%' }}
+              style={{ ...whiteInputStyle, width: "100%" }}
               placeholder="Filter by League"
               value={filterLeague === "all" ? undefined : filterLeague}
               onChange={(val) => setFilterLeague(val || "all")}
-              dropdownStyle={{ background: '#2a2a2a', color: '#fff' }}
+              dropdownStyle={{ background: "#2a2a2a", color: "#fff" }}
               className="white-placeholder"
             >
               <Select.Option value="all">All Leagues</Select.Option>

@@ -48,7 +48,7 @@ export const saveWeeklyChatToStorage = (conversation: {
 
     localStorage.setItem(WEEKLY_CHAT_STORAGE_KEY, JSON.stringify(storedConversation));
   } catch (error) {
-    console.error('Error saving weekly chat to localStorage:', error);
+    console.error('Error saving Pre-Day chat to localStorage:', error);
   }
 };
 
@@ -90,7 +90,7 @@ export const loadWeeklyChatFromStorage = (): {
       messages,
     };
   } catch (error) {
-    console.error('Error loading weekly chat from localStorage:', error);
+    console.error('Error loading Pre-Day chat from localStorage:', error);
     return null;
   }
 };
@@ -99,6 +99,6 @@ export const clearWeeklyChatStorage = () => {
   try {
     localStorage.removeItem(WEEKLY_CHAT_STORAGE_KEY);
   } catch (error) {
-    console.error('Error clearing weekly chat from localStorage:', error);
+    console.error('Error clearing Pre-Day chat from localStorage:', error);
   }
 }; 
