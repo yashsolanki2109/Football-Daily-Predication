@@ -550,35 +550,23 @@ const WeeklyDashboardTable: React.FC = () => {
   };
 
   const getResultClass = (result: string) => {
-    if (!result) return "pending";
+    if (!result || result === "" || result.toLowerCase() === "null") return "-";
     const resultLower = result.toLowerCase();
     if (resultLower.includes("win") || resultLower.includes("victory"))
       return "win";
     if (resultLower.includes("loss") || resultLower.includes("defeat"))
       return "loss";
-    if (resultLower.includes("draw") || resultLower.includes("tie"))
-      return "draw";
-    if (resultLower.includes("correct") || resultLower.includes("right"))
-      return "correct";
-    if (resultLower.includes("incorrect") || resultLower.includes("wrong"))
-      return "incorrect";
-    return "pending";
+    if (resultLower.includes("pending")) return "pending";
   };
 
   const formatResult = (result: string) => {
-    if (!result) return "Pending";
+    if (!result || result === "" || result.toLowerCase() === "null") return "-";
     const resultLower = result.toLowerCase();
     if (resultLower.includes("win") || resultLower.includes("victory"))
       return "WIN";
     if (resultLower.includes("loss") || resultLower.includes("defeat"))
       return "LOSS";
-    if (resultLower.includes("draw") || resultLower.includes("tie"))
-      return "DRAW";
-    if (resultLower.includes("correct") || resultLower.includes("right"))
-      return "CORRECT";
-    if (resultLower.includes("incorrect") || resultLower.includes("wrong"))
-      return "INCORRECT";
-    return result.toUpperCase();
+    if (resultLower.includes("pending")) return "Pending";
   };
 
   const formatDateTime = (dateTime: string) => {
@@ -869,10 +857,7 @@ const WeeklyDashboardTable: React.FC = () => {
       if (
         (filterResult === "win" && !resultLower.includes("win")) ||
         (filterResult === "loss" && !resultLower.includes("loss")) ||
-        (filterResult === "draw" && !resultLower.includes("draw")) ||
-        (filterResult === "correct" && !resultLower.includes("correct")) ||
-        (filterResult === "incorrect" && !resultLower.includes("incorrect")) ||
-        (filterResult === "pending" && resultLower !== "")
+        filterResult === "pending"
       ) {
         match = false;
       }
@@ -1104,9 +1089,6 @@ const WeeklyDashboardTable: React.FC = () => {
               <Option value="all">All Results</Option>
               <Option value="win">Win</Option>
               <Option value="loss">Loss</Option>
-              <Option value="draw">Draw</Option>
-              <Option value="correct">Correct</Option>
-              <Option value="incorrect">Incorrect</Option>
               <Option value="pending">Pending</Option>
             </Select>
           </Col>
