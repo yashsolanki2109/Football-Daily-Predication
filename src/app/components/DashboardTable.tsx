@@ -355,6 +355,56 @@ const ConfidenceTag = styled(Tag)`
   }
 `;
 
+const ResultTag = styled(Tag)`
+  border-radius: 8px;
+  font-weight: 700;
+  border: none;
+  padding: 6px 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 80px;
+  text-align: center;
+
+  &.win {
+    background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3);
+  }
+
+  &.loss {
+    background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3);
+  }
+
+  &.draw {
+    background: linear-gradient(135deg, #faad14 0%, #d48806 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(250, 173, 20, 0.3);
+  }
+
+  &.pending {
+    background: linear-gradient(135deg, #8e8ea0 0%, #6b6b7a 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(142, 142, 160, 0.3);
+  }
+
+  &.correct {
+    background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3);
+    border: 2px solid #52c41a;
+  }
+
+  &.incorrect {
+    background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3);
+    border: 2px solid #ff4d4f;
+  }
+`;
+
 const TeamName = styled.span`
   font-weight: 600;
   color: #10a37f;
@@ -395,7 +445,7 @@ const FiltersRow = styled(Row)`
 `;
 
 const whiteInputStyle = {
-  color: '#fff',
+  color: "#fff",
 };
 
 const WhitePlaceholderStyle = createGlobalStyle`
@@ -427,6 +477,7 @@ interface DashboardRow {
   overallAnalytics: string;
   confidenceLevel: number;
   partialData: string;
+  result: string;
 }
 
 const DashboardTable: React.FC = () => {
@@ -439,6 +490,7 @@ const DashboardTable: React.FC = () => {
   const [filterConfidence, setFilterConfidence] = useState<string>("all");
   const [filterPartialData, setFilterPartialData] = useState<string>("");
   const [filterAccuracy, setFilterAccuracy] = useState<string>("all");
+  const [filterResult, setFilterResult] = useState<string>("all");
 
   const fetchData = async () => {
     try {
@@ -474,7 +526,8 @@ const DashboardTable: React.FC = () => {
         predictionAccuracy: item["prediction_accuracy"],
         overallAnalytics: item["overall_analytics"],
         confidenceLevel: item["confidence_level"] || 0,
-        partialData: item["partial_data"] || '',
+        partialData: item["partial_data"] || "",
+        result: item["result"] || "",
       }));
 
       setData(transformedData);
@@ -503,13 +556,43 @@ const DashboardTable: React.FC = () => {
     return "low";
   };
 
+  const getResultClass = (result: string) => {
+    if (!result) return "pending";
+    const resultLower = result.toLowerCase();
+    if (resultLower.includes("win") || resultLower.includes("victory"))
+      return "win";
+    if (resultLower.includes("loss") || resultLower.includes("defeat"))
+      return "loss";
+    if (resultLower.includes("draw") || resultLower.includes("tie"))
+      return "draw";
+    if (resultLower.includes("correct") || resultLower.includes("right"))
+      return "correct";
+    if (resultLower.includes("incorrect") || resultLower.includes("wrong"))
+      return "incorrect";
+    return "pending";
+  };
 
+  const formatResult = (result: string) => {
+    if (!result) return "Pending";
+    const resultLower = result.toLowerCase();
+    if (resultLower.includes("win") || resultLower.includes("victory"))
+      return "WIN";
+    if (resultLower.includes("loss") || resultLower.includes("defeat"))
+      return "LOSS";
+    if (resultLower.includes("draw") || resultLower.includes("tie"))
+      return "DRAW";
+    if (resultLower.includes("correct") || resultLower.includes("right"))
+      return "CORRECT";
+    if (resultLower.includes("incorrect") || resultLower.includes("wrong"))
+      return "INCORRECT";
+    return result.toUpperCase();
+  };
 
   const formatDateTime = (dateTime: string | null | undefined) => {
-    if (!dateTime) return '-';
+    if (!dateTime) return "-";
     try {
       const date = new Date(dateTime);
-      if (isNaN(date.getTime())) return '-';
+      if (isNaN(date.getTime())) return "-";
       return date.toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
@@ -518,7 +601,7 @@ const DashboardTable: React.FC = () => {
         minute: "2-digit",
       });
     } catch {
-      return '-';
+      return "-";
     }
   };
 
@@ -534,11 +617,11 @@ const DashboardTable: React.FC = () => {
       render: (_, record) => (
         <div style={{ textAlign: "left" }}>
           <div>
-            <TeamName>{record.homeTeam ?? '-'}</TeamName>
+            <TeamName>{record.homeTeam ?? "-"}</TeamName>
           </div>
           <div style={{ fontSize: "12px", color: "#8e8ea0" }}>vs</div>
           <div>
-            <TeamName>{record.awayTeam ?? '-'}</TeamName>
+            <TeamName>{record.awayTeam ?? "-"}</TeamName>
           </div>
         </div>
       ),
@@ -571,10 +654,10 @@ const DashboardTable: React.FC = () => {
       render: (_, record) => (
         <div>
           <div style={{ fontWeight: 600, fontSize: "12px" }}>
-            {record.league ?? '-'}
+            {record.league ?? "-"}
           </div>
           <div style={{ fontSize: "11px", color: "#8e8ea0" }}>
-            {record.country ?? '-'}
+            {record.country ?? "-"}
           </div>
         </div>
       ),
@@ -587,10 +670,10 @@ const DashboardTable: React.FC = () => {
       render: (_, record) => (
         <div style={{ textAlign: "center" }}>
           <div style={{ fontWeight: 600, color: "#52c41a" }}>
-            Win: {record.predictionWinTeam ?? '-'}
+            Win: {record.predictionWinTeam ?? "-"}
           </div>
           <div style={{ fontSize: "12px", color: "#8e8ea0" }}>
-            Loss: {record.predictionLossTeam ?? '-'}
+            Loss: {record.predictionLossTeam ?? "-"}
           </div>
         </div>
       ),
@@ -601,7 +684,7 @@ const DashboardTable: React.FC = () => {
       dataIndex: "predictedScore",
       key: "predictedScore",
       width: 100,
-      render: (score) => <ScoreDisplay>{score ?? '-'}</ScoreDisplay>,
+      render: (score) => <ScoreDisplay>{score ?? "-"}</ScoreDisplay>,
       responsive: ["sm"],
     },
     {
@@ -627,22 +710,22 @@ const DashboardTable: React.FC = () => {
         if (confidence == null) {
           return <ConfidenceTag>-</ConfidenceTag>;
         }
-        
-        let backgroundColor = '#ff4d4f'; // default red for low
-        if (String(confidence).toLowerCase() == 'high') {
-          backgroundColor = '#52c41a'; // green for high
-        } else if (String(confidence).toLowerCase() ==  'medium') {
-          backgroundColor = '#faad14'; // yellow for medium
+
+        let backgroundColor = "#ff4d4f"; // default red for low
+        if (String(confidence).toLowerCase() == "high") {
+          backgroundColor = "#52c41a"; // green for high
+        } else if (String(confidence).toLowerCase() == "medium") {
+          backgroundColor = "#faad14"; // yellow for medium
         }
         return (
-          <ConfidenceTag 
-            style={{ 
+          <ConfidenceTag
+            style={{
               background: backgroundColor,
-              color: 'white',
-              borderRadius: '6px',
+              color: "white",
+              borderRadius: "6px",
               fontWeight: 600,
-              border: 'none',
-              padding: '4px 8px'
+              border: "none",
+              padding: "4px 8px",
             }}
           >
             {confidence}
@@ -657,8 +740,19 @@ const DashboardTable: React.FC = () => {
       width: 120,
       render: (partialData) => (
         <div style={{ fontSize: "12px", wordBreak: "break-word" }}>
-          {partialData || '-'}
+          {partialData || "-"}
         </div>
+      ),
+    },
+    {
+      title: "Result",
+      dataIndex: "result",
+      key: "result",
+      width: 120,
+      render: (result) => (
+        <ResultTag className={getResultClass(result)}>
+          {formatResult(result)}
+        </ResultTag>
       ),
     },
     {
@@ -678,7 +772,7 @@ const DashboardTable: React.FC = () => {
                     fontSize: 13,
                   }}
                 >
-                  {record.reasonForWin ?? '-'}
+                  {record.reasonForWin ?? "-"}
                 </div>
               </div>
               <div>
@@ -690,7 +784,7 @@ const DashboardTable: React.FC = () => {
                     fontSize: 13,
                   }}
                 >
-                  {record.reasonsForLoss ?? '-'}
+                  {record.reasonsForLoss ?? "-"}
                 </div>
               </div>
               <div>
@@ -702,7 +796,7 @@ const DashboardTable: React.FC = () => {
                     fontSize: 13,
                   }}
                 >
-                  {record.overallAnalytics ?? '-'}
+                  {record.overallAnalytics ?? "-"}
                 </div>
               </div>
               {/* <div>
@@ -734,9 +828,9 @@ const DashboardTable: React.FC = () => {
     averageAccuracy:
       data.length > 0
         ? Math.round(
-          data.reduce((sum, item) => sum + item.predictionAccuracy, 0) /
-          data.length
-        )
+            data.reduce((sum, item) => sum + item.predictionAccuracy, 0) /
+              data.length
+          )
         : 0,
     highAccuracyMatches: data.filter((item) => item.predictionAccuracy >= 80)
       .length,
@@ -744,7 +838,9 @@ const DashboardTable: React.FC = () => {
   };
 
   // Unique leagues for dropdown
-  const leagueOptions = Array.from(new Set(sortedData.map((item) => item.league)));
+  const leagueOptions = Array.from(
+    new Set(sortedData.map((item) => item.league))
+  );
 
   // Filtered data
   const filteredData = sortedData.filter((item) => {
@@ -793,9 +889,26 @@ const DashboardTable: React.FC = () => {
         match = false;
       }
     }
+    // Result filter
+    if (filterResult !== "all") {
+      const resultLower = item.result.toLowerCase();
+      if (
+        (filterResult === "win" && !resultLower.includes("win")) ||
+        (filterResult === "loss" && !resultLower.includes("loss")) ||
+        (filterResult === "draw" && !resultLower.includes("draw")) ||
+        (filterResult === "correct" && !resultLower.includes("correct")) ||
+        (filterResult === "incorrect" && !resultLower.includes("incorrect")) ||
+        (filterResult === "pending" && resultLower !== "")
+      ) {
+        match = false;
+      }
+    }
     return match;
   });
-  console.log('FilteredData order:', filteredData.map(i => i.dateTime));
+  console.log(
+    "FilteredData order:",
+    filteredData.map((i) => i.dateTime)
+  );
 
   if (loading) {
     return (
@@ -922,15 +1035,14 @@ const DashboardTable: React.FC = () => {
         <FiltersRow gutter={[12, 12]} justify="start">
           <Col xs={24} sm={12} md={8} lg={6}>
             <DatePicker
-              style={{ ...whiteInputStyle, width: '100%' }}
+              style={{ ...whiteInputStyle, width: "100%" }}
               allowClear
               placeholder="Filter by Date"
               onChange={(date) =>
                 setFilterDate(date ? date.format("YYYY-MM-DD") : null)
               }
               inputReadOnly={false}
-
-              popupStyle={{ color: '#fff' }}
+              popupStyle={{ color: "#fff" }}
               // AntD doesn't support placeholder style directly, so use className
               className="white-placeholder"
             />
@@ -941,18 +1053,18 @@ const DashboardTable: React.FC = () => {
               placeholder="Search by Team Name"
               onChange={(e) => setFilterName(e.target.value)}
               value={filterName}
-              style={{ ...whiteInputStyle, width: '100%' }}
+              style={{ ...whiteInputStyle, width: "100%" }}
               className="white-placeholder"
             />
           </Col>
           <Col xs={24} sm={12} md={8} lg={6}>
             <Select
               allowClear
-              style={{ ...whiteInputStyle, width: '100%' }}
+              style={{ ...whiteInputStyle, width: "100%" }}
               placeholder="Filter by League"
               value={filterLeague === "all" ? undefined : filterLeague}
               onChange={(val) => setFilterLeague(val || "all")}
-              dropdownStyle={{ background: '#2a2a2a', color: '#fff' }}
+              dropdownStyle={{ background: "#2a2a2a", color: "#fff" }}
               className="white-placeholder"
             >
               <Option value="all">All Leagues</Option>
@@ -966,11 +1078,11 @@ const DashboardTable: React.FC = () => {
           <Col xs={24} sm={12} md={8} lg={6}>
             <Select
               allowClear
-              style={{ ...whiteInputStyle, width: '100%' }}
+              style={{ ...whiteInputStyle, width: "100%" }}
               placeholder="Filter by Accuracy"
               value={filterAccuracy === "all" ? undefined : filterAccuracy}
               onChange={(val) => setFilterAccuracy(val || "all")}
-              dropdownStyle={{ background: '#2a2a2a', color: '#fff' }}
+              dropdownStyle={{ background: "#2a2a2a", color: "#fff" }}
               className="white-placeholder"
             >
               <Option value="all">All Accuracy Levels</Option>
@@ -982,11 +1094,11 @@ const DashboardTable: React.FC = () => {
           <Col xs={24} sm={12} md={8} lg={6}>
             <Select
               allowClear
-              style={{ ...whiteInputStyle, width: '100%' }}
+              style={{ ...whiteInputStyle, width: "100%" }}
               placeholder="Filter by Confidence"
               value={filterConfidence === "all" ? undefined : filterConfidence}
               onChange={(val) => setFilterConfidence(val || "all")}
-              dropdownStyle={{ background: '#2a2a2a', color: '#fff' }}
+              dropdownStyle={{ background: "#2a2a2a", color: "#fff" }}
               className="white-placeholder"
             >
               <Option value="all">All Confidence Levels</Option>
@@ -998,16 +1110,35 @@ const DashboardTable: React.FC = () => {
           <Col xs={24} sm={12} md={8} lg={6}>
             <Select
               allowClear
-              style={{ ...whiteInputStyle, width: '100%' }}
+              style={{ ...whiteInputStyle, width: "100%" }}
               placeholder="Filter by Partial Data"
               value={filterPartialData === "" ? undefined : filterPartialData}
               onChange={(val) => setFilterPartialData(val || "")}
-              dropdownStyle={{ background: '#2a2a2a', color: '#fff' }}
+              dropdownStyle={{ background: "#2a2a2a", color: "#fff" }}
               className="white-placeholder"
             >
               <Option value="">All Partial Data</Option>
               <Option value="Yes">Yes</Option>
               <Option value="No">No</Option>
+            </Select>
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Select
+              allowClear
+              style={{ ...whiteInputStyle, width: "100%" }}
+              placeholder="Filter by Result"
+              value={filterResult === "all" ? undefined : filterResult}
+              onChange={(val) => setFilterResult(val || "all")}
+              dropdownStyle={{ background: "#2a2a2a", color: "#fff" }}
+              className="white-placeholder"
+            >
+              <Option value="all">All Results</Option>
+              <Option value="win">Win</Option>
+              <Option value="loss">Loss</Option>
+              <Option value="draw">Draw</Option>
+              <Option value="correct">Correct</Option>
+              <Option value="incorrect">Incorrect</Option>
+              <Option value="pending">Pending</Option>
             </Select>
           </Col>
         </FiltersRow>

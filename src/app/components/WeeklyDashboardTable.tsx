@@ -28,6 +28,8 @@ import "antd/dist/reset.css";
 import dayjs from "dayjs";
 
 const { Text, Title } = Typography;
+const { Search } = Input;
+const { Option } = Select;
 
 const GlobalScrollbarStyle = createGlobalStyle`
   /* Modern Scrollbar Styling */
@@ -331,6 +333,78 @@ const AccuracyTag = styled(Tag)`
   }
 `;
 
+const ConfidenceTag = styled(Tag)`
+  border-radius: 6px;
+  font-weight: 600;
+  border: none;
+  padding: 4px 8px;
+
+  &.high {
+    background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+    color: white;
+  }
+
+  &.medium {
+    background: linear-gradient(135deg, #faad14 0%, #d48806 100%);
+    color: white;
+  }
+
+  &.low {
+    background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
+    color: white;
+  }
+`;
+
+const ResultTag = styled(Tag)`
+  border-radius: 8px;
+  font-weight: 700;
+  border: none;
+  padding: 6px 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 80px;
+  text-align: center;
+
+  &.win {
+    background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3);
+  }
+
+  &.loss {
+    background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3);
+  }
+
+  &.draw {
+    background: linear-gradient(135deg, #faad14 0%, #d48806 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(250, 173, 20, 0.3);
+  }
+
+  &.pending {
+    background: linear-gradient(135deg, #8e8ea0 0%, #6b6b7a 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(142, 142, 160, 0.3);
+  }
+
+  &.correct {
+    background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3);
+    border: 2px solid #52c41a;
+  }
+
+  &.incorrect {
+    background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3);
+    border: 2px solid #ff4d4f;
+  }
+`;
+
 const TeamName = styled.span`
   font-weight: 600;
   color: #10a37f;
@@ -401,6 +475,9 @@ interface DashboardRow {
   predictedScore: string;
   predictionAccuracy: number;
   overallAnalytics: string;
+  confidenceLevel: number;
+  partialData: string;
+  result: string;
 }
 
 const WeeklyDashboardTable: React.FC = () => {
@@ -410,6 +487,10 @@ const WeeklyDashboardTable: React.FC = () => {
   const [filterDate, setFilterDate] = useState<string | null>(null);
   const [filterName, setFilterName] = useState<string>("");
   const [filterLeague, setFilterLeague] = useState<string>("all");
+  const [filterConfidence, setFilterConfidence] = useState<string>("all");
+  const [filterPartialData, setFilterPartialData] = useState<string>("");
+  const [filterAccuracy, setFilterAccuracy] = useState<string>("all");
+  const [filterResult, setFilterResult] = useState<string>("all");
 
   const fetchData = async () => {
     try {
@@ -444,6 +525,9 @@ const WeeklyDashboardTable: React.FC = () => {
         predictedScore: item["predicted_score"],
         predictionAccuracy: item["prediction_accuracy"],
         overallAnalytics: item["overall_analytics"],
+        confidenceLevel: item["confidence_level"] || 0,
+        partialData: item["partial_data"] || "",
+        result: item["result"] || "",
       }));
 
       setData(transformedData);
@@ -463,6 +547,38 @@ const WeeklyDashboardTable: React.FC = () => {
     if (accuracy >= 80) return "high";
     if (accuracy >= 60) return "medium";
     return "low";
+  };
+
+  const getResultClass = (result: string) => {
+    if (!result) return "pending";
+    const resultLower = result.toLowerCase();
+    if (resultLower.includes("win") || resultLower.includes("victory"))
+      return "win";
+    if (resultLower.includes("loss") || resultLower.includes("defeat"))
+      return "loss";
+    if (resultLower.includes("draw") || resultLower.includes("tie"))
+      return "draw";
+    if (resultLower.includes("correct") || resultLower.includes("right"))
+      return "correct";
+    if (resultLower.includes("incorrect") || resultLower.includes("wrong"))
+      return "incorrect";
+    return "pending";
+  };
+
+  const formatResult = (result: string) => {
+    if (!result) return "Pending";
+    const resultLower = result.toLowerCase();
+    if (resultLower.includes("win") || resultLower.includes("victory"))
+      return "WIN";
+    if (resultLower.includes("loss") || resultLower.includes("defeat"))
+      return "LOSS";
+    if (resultLower.includes("draw") || resultLower.includes("tie"))
+      return "DRAW";
+    if (resultLower.includes("correct") || resultLower.includes("right"))
+      return "CORRECT";
+    if (resultLower.includes("incorrect") || resultLower.includes("wrong"))
+      return "INCORRECT";
+    return result.toUpperCase();
   };
 
   const formatDateTime = (dateTime: string) => {
@@ -574,6 +690,60 @@ const WeeklyDashboardTable: React.FC = () => {
       ),
     },
     {
+      title: "Confidence",
+      dataIndex: "confidenceLevel",
+      key: "confidenceLevel",
+      width: 100,
+      render: (confidence) => {
+        if (confidence == null) {
+          return <ConfidenceTag>-</ConfidenceTag>;
+        }
+
+        let backgroundColor = "#ff4d4f"; // default red for low
+        if (String(confidence).toLowerCase() == "high") {
+          backgroundColor = "#52c41a"; // green for high
+        } else if (String(confidence).toLowerCase() == "medium") {
+          backgroundColor = "#faad14"; // yellow for medium
+        }
+        return (
+          <ConfidenceTag
+            style={{
+              background: backgroundColor,
+              color: "white",
+              borderRadius: "6px",
+              fontWeight: 600,
+              border: "none",
+              padding: "4px 8px",
+            }}
+          >
+            {confidence}
+          </ConfidenceTag>
+        );
+      },
+    },
+    {
+      title: "Partial Data",
+      dataIndex: "partialData",
+      key: "partialData",
+      width: 120,
+      render: (partialData) => (
+        <div style={{ fontSize: "12px", wordBreak: "break-word" }}>
+          {partialData || "-"}
+        </div>
+      ),
+    },
+    {
+      title: "Result",
+      dataIndex: "result",
+      key: "result",
+      width: 120,
+      render: (result) => (
+        <ResultTag className={getResultClass(result)}>
+          {formatResult(result)}
+        </ResultTag>
+      ),
+    },
+    {
       title: "Details",
       key: "details",
       width: 120,
@@ -667,6 +837,45 @@ const WeeklyDashboardTable: React.FC = () => {
     // League filter
     if (filterLeague !== "all" && item.league !== filterLeague) {
       match = false;
+    }
+    // Accuracy filter
+    if (filterAccuracy !== "all") {
+      let accuracyLevel = "low";
+      if (item.predictionAccuracy >= 80) {
+        accuracyLevel = "high";
+      } else if (item.predictionAccuracy >= 60) {
+        accuracyLevel = "medium";
+      }
+      if (accuracyLevel !== filterAccuracy) {
+        match = false;
+      }
+    }
+    // Confidence filter
+    if (filterConfidence !== "all") {
+      const confidenceStr = String(item.confidenceLevel).toLowerCase();
+      if (confidenceStr !== filterConfidence.toLowerCase()) {
+        match = false;
+      }
+    }
+    // Partial Data filter
+    if (filterPartialData) {
+      if (item.partialData !== filterPartialData) {
+        match = false;
+      }
+    }
+    // Result filter
+    if (filterResult !== "all") {
+      const resultLower = item.result.toLowerCase();
+      if (
+        (filterResult === "win" && !resultLower.includes("win")) ||
+        (filterResult === "loss" && !resultLower.includes("loss")) ||
+        (filterResult === "draw" && !resultLower.includes("draw")) ||
+        (filterResult === "correct" && !resultLower.includes("correct")) ||
+        (filterResult === "incorrect" && !resultLower.includes("incorrect")) ||
+        (filterResult === "pending" && resultLower !== "")
+      ) {
+        match = false;
+      }
     }
     return match;
   });
@@ -808,7 +1017,7 @@ const WeeklyDashboardTable: React.FC = () => {
             />
           </Col>
           <Col xs={24} sm={12} md={8} lg={6}>
-            <Input.Search
+            <Search
               allowClear
               placeholder="Search by Team Name"
               onChange={(e) => setFilterName(e.target.value)}
@@ -827,12 +1036,78 @@ const WeeklyDashboardTable: React.FC = () => {
               dropdownStyle={{ background: "#2a2a2a", color: "#fff" }}
               className="white-placeholder"
             >
-              <Select.Option value="all">All Leagues</Select.Option>
+              <Option value="all">All Leagues</Option>
               {leagueOptions.map((league) => (
-                <Select.Option key={league} value={league}>
+                <Option key={league} value={league}>
                   {league}
-                </Select.Option>
+                </Option>
               ))}
+            </Select>
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Select
+              allowClear
+              style={{ ...whiteInputStyle, width: "100%" }}
+              placeholder="Filter by Accuracy"
+              value={filterAccuracy === "all" ? undefined : filterAccuracy}
+              onChange={(val) => setFilterAccuracy(val || "all")}
+              dropdownStyle={{ background: "#2a2a2a", color: "#fff" }}
+              className="white-placeholder"
+            >
+              <Option value="all">All Accuracy Levels</Option>
+              <Option value="high">High (≥80%)</Option>
+              <Option value="medium">Medium (≥60%)</Option>
+              <Option value="low">Low (&lt;60%)</Option>
+            </Select>
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Select
+              allowClear
+              style={{ ...whiteInputStyle, width: "100%" }}
+              placeholder="Filter by Confidence"
+              value={filterConfidence === "all" ? undefined : filterConfidence}
+              onChange={(val) => setFilterConfidence(val || "all")}
+              dropdownStyle={{ background: "#2a2a2a", color: "#fff" }}
+              className="white-placeholder"
+            >
+              <Option value="all">All Confidence Levels</Option>
+              <Option value="high">High</Option>
+              <Option value="medium">Medium</Option>
+              <Option value="low">Low</Option>
+            </Select>
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Select
+              allowClear
+              style={{ ...whiteInputStyle, width: "100%" }}
+              placeholder="Filter by Partial Data"
+              value={filterPartialData === "" ? undefined : filterPartialData}
+              onChange={(val) => setFilterPartialData(val || "")}
+              dropdownStyle={{ background: "#2a2a2a", color: "#fff" }}
+              className="white-placeholder"
+            >
+              <Option value="">All Partial Data</Option>
+              <Option value="Yes">Yes</Option>
+              <Option value="No">No</Option>
+            </Select>
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Select
+              allowClear
+              style={{ ...whiteInputStyle, width: "100%" }}
+              placeholder="Filter by Result"
+              value={filterResult === "all" ? undefined : filterResult}
+              onChange={(val) => setFilterResult(val || "all")}
+              dropdownStyle={{ background: "#2a2a2a", color: "#fff" }}
+              className="white-placeholder"
+            >
+              <Option value="all">All Results</Option>
+              <Option value="win">Win</Option>
+              <Option value="loss">Loss</Option>
+              <Option value="draw">Draw</Option>
+              <Option value="correct">Correct</Option>
+              <Option value="incorrect">Incorrect</Option>
+              <Option value="pending">Pending</Option>
             </Select>
           </Col>
         </FiltersRow>
