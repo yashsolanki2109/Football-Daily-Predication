@@ -15,6 +15,7 @@ import {
   Select,
   Row,
   Col,
+  message,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import styled, { createGlobalStyle } from "styled-components";
@@ -26,6 +27,8 @@ import {
 } from "@ant-design/icons";
 import "antd/dist/reset.css";
 import dayjs from "dayjs";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 const { Text, Title } = Typography;
 const { Search } = Input;
@@ -901,6 +904,42 @@ const WeeklyDashboardTable: React.FC = () => {
     );
   }
 
+  const handleToExport = (): void => {
+    try {
+      const exportData = filteredData.filter(
+        (item) =>
+          String(item.confidenceLevel)?.toLowerCase() === "high" ||
+          String(item.confidenceLevel)?.toLowerCase() === "medium"
+      );
+
+      if (exportData.length === 0) {
+        message.warning("No High or Medium confidence data to export.");
+        return;
+      }
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+      const blob = new Blob([excelBuffer], {
+        type: "application/octet-stream",
+      });
+
+      saveAs(blob, "Pre-Day-Predication.xlsx");
+      message.success("Export successful!");
+    } catch (error: unknown) {
+      message.error("Export failed.");
+      if (error instanceof Error) {
+        console.error("Export failed:", error.message);
+      } else {
+        console.error("Unexpected export error:", error);
+      }
+    }
+  };
   if (error) {
     return (
       <ConfigProvider
@@ -1091,6 +1130,9 @@ const WeeklyDashboardTable: React.FC = () => {
               <Option value="loss">Loss</Option>
               <Option value="pending">Pending</Option>
             </Select>
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Button onClick={handleToExport}>Export Data</Button>
           </Col>
         </FiltersRow>
         <TableWrapper>
