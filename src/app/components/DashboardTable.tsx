@@ -537,7 +537,7 @@ const DashboardTable: React.FC = () => {
         partialData: item["partial_data"] || "",
         result: item["result"] || "",
         overallAnalyticsItaly: item["Overall Analytics (Italy)"] || "",
-        overallAnalyticsGermany: item["Overall Analytics (Germany)"] || "",
+        overallAnalyticsGermany: item["Overall Analytics (German)"] || "",
         overallAnalyticsFrance: item["Overall Analytics (France)"] || "",
         overallAnalyticsSpain: item["Overall Analytics (Spain)"] || "",
         overallAnalyticsPortugal: item["Overall Analytics (Portugal)"] || "",
