@@ -481,6 +481,12 @@ interface DashboardRow {
   confidenceLevel: number;
   partialData: string;
   result: string;
+  overallAnalyticsItaly: string;
+  overallAnalyticsGermany: string;
+  overallAnalyticsFrance: string;
+  overallAnalyticsSpain: string;
+  overallAnalyticsPortugal: string;
+  overallAnalyticsGreece: string;
 }
 
 const WeeklyDashboardTable: React.FC = () => {
@@ -531,6 +537,12 @@ const WeeklyDashboardTable: React.FC = () => {
         confidenceLevel: item["confidence_level"] || 0,
         partialData: item["partial_data"] || "",
         result: item["result"] || "",
+        overallAnalyticsItaly: item["Overall Analytics (Italy)"] || "",
+        overallAnalyticsGermany: item["Overall Analytics (Germany)"] || "",
+        overallAnalyticsFrance: item["Overall Analytics (France)"] || "",
+        overallAnalyticsSpain: item["Overall Analytics (Spain)"] || "",
+        overallAnalyticsPortugal: item["Overall Analytics (Portugal)"] || "",
+        overallAnalyticsGreece: item["Overall Analytics (Greece)"] || "",
       }));
 
       setData(transformedData);
@@ -735,6 +747,77 @@ const WeeklyDashboardTable: React.FC = () => {
       ),
     },
     {
+      title: "Country Analytics",
+      key: "countryAnalytics",
+      width: 150,
+      render: (_, record) => {
+        const countryAnalytics = [
+          { country: "Italy", data: record.overallAnalyticsItaly },
+          { country: "Germany", data: record.overallAnalyticsGermany },
+          { country: "France", data: record.overallAnalyticsFrance },
+          { country: "Spain", data: record.overallAnalyticsSpain },
+          { country: "Portugal", data: record.overallAnalyticsPortugal },
+          { country: "Greece", data: record.overallAnalyticsGreece },
+        ].filter(
+          (item) => item.data && item.data !== "null" && item.data.trim() !== ""
+        );
+
+        return (
+          <Popover
+            content={
+              <div
+                style={{
+                  maxWidth: "400px",
+                  maxHeight: "300px",
+                  overflowY: "auto",
+                }}
+              >
+                {countryAnalytics.length > 0 ? (
+                  countryAnalytics.map((item, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        marginBottom: "12px",
+                        padding: "8px",
+                        background: "#2a2a2a",
+                        borderRadius: "6px",
+                      }}
+                    >
+                      <strong style={{ color: "#10a37f" }}>
+                        {item.country}
+                      </strong>
+                      <div
+                        style={{
+                          fontSize: "12px",
+                          marginTop: "4px",
+                          wordBreak: "break-word",
+                        }}
+                      >
+                        {item.data}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ textAlign: "center", color: "#8e8ea0" }}>
+                    No country analytics available
+                  </div>
+                )}
+              </div>
+            }
+            title="Country-Specific Analytics"
+            trigger="click"
+            placement="left"
+          >
+            <a style={{ color: "#10a37f", cursor: "pointer" }}>
+              {countryAnalytics.length > 0
+                ? `${countryAnalytics.length} Countries`
+                : "No Data"}
+            </a>
+          </Popover>
+        );
+      },
+    },
+    {
       title: "Details",
       key: "details",
       width: 120,
@@ -767,7 +850,7 @@ const WeeklyDashboardTable: React.FC = () => {
                 </div>
               </div>
               <div>
-                <strong>Analytics</strong>
+                <strong>General Analytics</strong>
                 <div
                   style={{
                     whiteSpace: "pre-line",
