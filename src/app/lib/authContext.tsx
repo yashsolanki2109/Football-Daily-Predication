@@ -58,6 +58,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           localStorage.removeItem("user");
         }
       } catch (e) {
+        console.error("Invalid token data:", e);
         // Invalid token data, clear storage
         localStorage.removeItem("authToken");
         localStorage.removeItem("user");

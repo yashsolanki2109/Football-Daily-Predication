@@ -92,36 +92,6 @@ const ErrorMessage = styled.div`
   font-size: 14px;
 `;
 
-const ForgotPassword = styled.a`
-  display: block;
-  text-align: right;
-  margin-top: 10px;
-  color: #10a37f;
-  font-size: 14px;
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
-const SignUpLink = styled.div`
-  text-align: center;
-  margin-top: 20px;
-  font-size: 14px;
-  color: #8e8ea0;
-`;
-
-const SignUpLinkText = styled.a`
-  color: #10a37f;
-  text-decoration: none;
-  margin-left: 5px;
-
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
 interface LoginFormProps {
   onLogin: (email: string, password: string) => Promise<void>;
   errorMessage?: string;

@@ -63,6 +63,7 @@ export default function Home() {
         setLoginError(result.error || "Login failed");
       }
     } catch (error) {
+      console.log("You got the error", error);
       setLoginError("An unexpected error occurred. Please try again.");
     }
   };

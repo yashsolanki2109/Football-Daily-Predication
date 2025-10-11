@@ -13,14 +13,20 @@ export const getAuthToken = (): string | null => {
         if (new Date(parsedToken.expiry) > new Date()) {
           return parsedToken.token;
         }
-      } catch (e) {
+      } catch (_e) {
         // Invalid token data
-        console.warn("Invalid token data in localStorage");
+        console.warn(_e || "Invalid token data in localStorage");
       }
     }
   }
   return null;
 };
+
+// Define a specific type for the request body
+interface ApiRequestBody {
+  question?: string;
+  token?: string;
+}
 
 export const sendChatMessage = async (
   question: string
@@ -29,7 +35,7 @@ export const sendChatMessage = async (
     const token = getAuthToken();
 
     // Include token in the request body
-    const requestBody: any = { question };
+    const requestBody: ApiRequestBody = { question };
     if (token) {
       requestBody.token = token;
     }
@@ -64,7 +70,7 @@ export const sendWeeklyChatMessage = async (
     const token = getAuthToken();
 
     // Include token in the request body
-    const requestBody: any = { question };
+    const requestBody: ApiRequestBody = { question };
     if (token) {
       requestBody.token = token;
     }
