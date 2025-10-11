@@ -29,6 +29,7 @@ import "antd/dist/reset.css";
 import dayjs from "dayjs";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { getAuthToken } from "../lib/api";
 
 const { Text, Title } = Typography;
 const { Search } = Input;
@@ -507,7 +508,8 @@ const WeeklyDashboardTable: React.FC = () => {
       setError(null);
 
       const response = await fetch(
-        "https://n8n.srv926513.hstgr.cloud/webhook/get-early-table-data"
+        "https://n8n.srv926513.hstgr.cloud/webhook/get-early-table-data?token=" +
+          getAuthToken() || ""
       );
 
       if (!response.ok) {

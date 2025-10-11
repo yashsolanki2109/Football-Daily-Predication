@@ -3,10 +3,37 @@ export interface ChatResponse {
   // Add other response fields if needed
 }
 
+// Helper function to get auth token
+export const getAuthToken = (): string | null => {
+  if (typeof window !== "undefined") {
+    const tokenData = localStorage.getItem("authToken");
+    if (tokenData) {
+      try {
+        const parsedToken = JSON.parse(tokenData);
+        if (new Date(parsedToken.expiry) > new Date()) {
+          return parsedToken.token;
+        }
+      } catch (e) {
+        // Invalid token data
+        console.warn("Invalid token data in localStorage");
+      }
+    }
+  }
+  return null;
+};
+
 export const sendChatMessage = async (
   question: string
 ): Promise<ChatResponse> => {
   try {
+    const token = getAuthToken();
+
+    // Include token in the request body
+    const requestBody: any = { question };
+    if (token) {
+      requestBody.token = token;
+    }
+
     const response = await fetch(
       "https://n8n.srv926513.hstgr.cloud/webhook/chatbot",
       {
@@ -14,7 +41,7 @@ export const sendChatMessage = async (
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify(requestBody),
       }
     );
 
@@ -34,6 +61,14 @@ export const sendWeeklyChatMessage = async (
   question: string
 ): Promise<ChatResponse> => {
   try {
+    const token = getAuthToken();
+
+    // Include token in the request body
+    const requestBody: any = { question };
+    if (token) {
+      requestBody.token = token;
+    }
+
     const response = await fetch(
       "https://n8n.srv926513.hstgr.cloud/webhook/early-chatbot",
       {
@@ -41,7 +76,7 @@ export const sendWeeklyChatMessage = async (
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify(requestBody),
       }
     );
 

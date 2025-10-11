@@ -100,6 +100,25 @@ const ClearButton = styled.button`
   }
 `;
 
+const LogoutButton = styled.button`
+  background: transparent;
+  border: 1px solid #444654;
+  color: #ececf1;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover {
+    background: #444654;
+    border-color: #ef4444;
+    color: #ef4444;
+  }
+  &:active {
+    transform: scale(0.95);
+  }
+`;
+
 const Avatar = styled.div`
   width: 34px;
   height: 34px;
@@ -131,6 +150,7 @@ interface TopBarProps {
   ) => void;
   onClearChat?: () => void;
   onClearWeeklyChat?: () => void;
+  onLogout?: () => void;
 }
 
 const TopBar: React.FC<TopBarProps> = ({
@@ -138,6 +158,7 @@ const TopBar: React.FC<TopBarProps> = ({
   onSelect,
   onClearChat,
   onClearWeeklyChat,
+  onLogout,
 }) => {
   return (
     <Bar>
@@ -193,6 +214,11 @@ const TopBar: React.FC<TopBarProps> = ({
           >
             Clear
           </ClearButton>
+        )}
+        {onLogout && (
+          <LogoutButton onClick={onLogout} title="Logout">
+            Logout
+          </LogoutButton>
         )}
         <Avatar title="User">🧑</Avatar>
       </Right>

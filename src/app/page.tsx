@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import ChatInterface from "./components/ChatInterface";
 import TopBar from "./components/TopBar";
@@ -10,6 +10,8 @@ import { useChatStorage } from "./lib/useChatStorage";
 import { useWeeklyChatStorage } from "./lib/useWeeklyChatStorage";
 import WeeklyDashboardTable from "./components/WeeklyDashboardTable";
 import WeeklyChatInterface from "./components/WeeklyChatInterface";
+import LoginForm from "./components/LoginForm";
+import { useAuth } from "./lib/authContext";
 
 const AppContainer = styled.div`
   display: flex;
@@ -28,9 +30,12 @@ const MainContent = styled.main`
   min-height: 0;
 `;
 
-
 export default function Home() {
-  const [activeMenu, setActiveMenu] = React.useState<"dashboard" | "chat" | 'weekly_dashboard' | "weekly_chat">("dashboard");
+  const { isLoggedIn, login, logout } = useAuth();
+  const [loginError, setLoginError] = useState("");
+  const [activeMenu, setActiveMenu] = React.useState<
+    "dashboard" | "chat" | "weekly_dashboard" | "weekly_chat"
+  >("dashboard");
   const {
     conversation,
     isLoading,
@@ -38,7 +43,7 @@ export default function Home() {
     addMessage,
     updateLastAssistantMessage,
     clearMessages,
-    showStorageIndicator
+    showStorageIndicator,
   } = useChatStorage();
 
   const {
@@ -48,8 +53,25 @@ export default function Home() {
     addMessage: addWeeklyMessage,
     updateLastAssistantMessage: updateLastWeeklyAssistantMessage,
     clearMessages: clearWeeklyMessages,
-    showStorageIndicator: weeklyShowStorageIndicator
+    showStorageIndicator: weeklyShowStorageIndicator,
   } = useWeeklyChatStorage();
+
+  const handleLogin = async (email: string, password: string) => {
+    try {
+      const result = await login(email, password);
+      if (!result.success) {
+        setLoginError(result.error || "Login failed");
+      }
+    } catch (error) {
+      setLoginError("An unexpected error occurred. Please try again.");
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    clearMessages();
+    clearWeeklyMessages();
+  };
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim()) return;
@@ -71,8 +93,10 @@ export default function Home() {
         setIsLoading(false);
       }, answer.length * 20 + 100);
     } catch (error) {
-      console.log("You got the error", error)
-      updateLastAssistantMessage("Sorry, I encountered an error while processing your request. Please try again.");
+      console.log("You got the error", error);
+      updateLastAssistantMessage(
+        "Sorry, I encountered an error while processing your request. Please try again."
+      );
       setIsLoading(false);
     }
   };
@@ -97,31 +121,40 @@ export default function Home() {
         setWeeklyIsLoading(false);
       }, answer.length * 20 + 100);
     } catch (error) {
-      console.log("You got the error", error)
-      updateLastWeeklyAssistantMessage("Sorry, I encountered an error while processing your request. Please try again.");
+      console.log("You got the error", error);
+      updateLastWeeklyAssistantMessage(
+        "Sorry, I encountered an error while processing your request. Please try again."
+      );
       setWeeklyIsLoading(false);
     }
   };
 
+  // If not logged in, show login form
+  if (!isLoggedIn) {
+    return <LoginForm onLogin={handleLogin} errorMessage={loginError} />;
+  }
+
   return (
     <AppContainer>
-      <TopBar 
-        active={activeMenu} 
-        onSelect={setActiveMenu} 
+      <TopBar
+        active={activeMenu}
+        onSelect={setActiveMenu}
         onClearChat={clearMessages}
         onClearWeeklyChat={clearWeeklyMessages}
+        onLogout={handleLogout}
       />
       <MainContent>
         {activeMenu === "dashboard" ? (
           <DashboardTable />
-        ) : activeMenu === 'weekly_dashboard' ? (
+        ) : activeMenu === "weekly_dashboard" ? (
           <WeeklyDashboardTable />
-        ) : activeMenu === 'weekly_chat' ? (
+        ) : activeMenu === "weekly_chat" ? (
           <WeeklyChatInterface
             conversation={weeklyConversation}
             onSendMessage={handleWeeklySendMessage}
             isLoading={weeklyIsLoading}
-            showStorageIndicator={weeklyShowStorageIndicator} />
+            showStorageIndicator={weeklyShowStorageIndicator}
+          />
         ) : (
           <ChatInterface
             conversation={conversation}
